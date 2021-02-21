@@ -12,10 +12,10 @@
         />
 
         <q-toolbar-title>
-          Quasar App
+          Qualifiacions App
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div>{{fecha}}</div>
       </q-toolbar>
     </q-header>
 
@@ -30,7 +30,6 @@
           header
           class="text-grey-8"
         >
-          Essential Links
         </q-item-label>
         <EssentialLink
           v-for="link in essentialLinks"
@@ -48,7 +47,7 @@
 
 <script>
 import EssentialLink from 'components/EssentialLink.vue'
-
+import moment from 'moment'
 const linksData = [
   {
     title: 'Docs',
@@ -101,6 +100,11 @@ export default {
     return {
       leftDrawerOpen: false,
       essentialLinks: linksData
+    }
+  },
+  computed: {
+    fecha () {
+      return moment(String(Date())).format('dddd-DD-MM-YYYY')
     }
   }
 }
