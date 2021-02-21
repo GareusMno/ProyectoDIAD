@@ -6,7 +6,7 @@
       </div>
 
       <div class="text-h2" style="opacity:.4">
-        Oops. Nothing here...
+        Pàgina no existeix.
       </div>
 
       <q-btn
@@ -15,7 +15,7 @@
         text-color="blue"
         unelevated
         to="/"
-        label="Go Home"
+        label="Torna a l'inici"
         no-caps
       />
     </div>
@@ -24,6 +24,11 @@
 
 <script>
 export default {
-  name: 'Error404'
+  name: 'Error404',
+  computed: {
+    txtback () {
+      return "Torna a l'inici"
+    }
+  }
 }
 </script>

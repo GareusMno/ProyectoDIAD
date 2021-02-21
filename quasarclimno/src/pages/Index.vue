@@ -14,7 +14,7 @@
           </q-card-section>
           <q-card-section>
             <q-form class="q-px-sm q-pt-xl">
-              <q-input square clearable v-model="dni" type="dni" label="DNI">
+              <q-input square clearable v-model="Nom" type="Nom" label="Nom">
                 <template v-slot:prepend>
                   <q-icon name="email" />
                 </template>
