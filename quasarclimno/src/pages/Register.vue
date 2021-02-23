@@ -14,27 +14,39 @@
           </q-card-section>
           <q-card-section>
             <q-form class="q-px-sm q-pt-xl q-pb-lg">
-              <q-input square clearable v-model="dni" type="dni" label="DNI*">
+              <q-input square clearable v-model="dni" type="dni" label="DNI*"
+              lazy-rules
+              :rules="[
+              val => val && val.length > 0 || 'Introducir DNI',
+              val => isValid && val.length == 9 || 'No es un DNI válido']">
                 <template v-slot:prepend>
                   <q-icon name="email" />
                 </template>
               </q-input>
-              <q-input square clearable v-model="nomcomplet" type="nomcomplet" label="Nom complet*">
+              <q-input square clearable v-model="nomcomplet" type="nomcomplet" label="Nom complet*"
+              lazy-rules
+              :rules="[val => val && val.length > 0 || 'Introducir nombre']">>
                 <template v-slot:prepend>
                   <q-icon name="assignment_ind" />
                 </template>
               </q-input>
-              <q-input square clearable v-model="username" type="username" label="Username*">
+              <q-input square clearable v-model="username" type="username" label="Username*"
+              lazy-rules
+              :rules="[val => val && val.length > 0 || 'Introducir username']">>
                 <template v-slot:prepend>
                   <q-icon name="account_circle" />
                 </template>
               </q-input>
-              <q-input square clearable v-model="password" type="password" label="Password*">
+              <q-input square clearable v-model="password" type="password" label="Password*"
+              lazy-rules
+              :rules="[val => val && val.length > 0 || 'Introducir contraseña']">
                 <template v-slot:prepend>
                   <q-icon name="lock" />
                 </template>
               </q-input>
-              <q-input square clearable v-model="password" type="password" label="Password*">
+              <q-input square clearable v-model="password2" type="password" label="Password*"
+              lazy-rules
+              :rules="[val => val && val.length > 0 || 'No coinciden las contraseñas', val => val == password || 'No coinciden']">
                 <template v-slot:prepend>
                   <q-icon name="lock" />
                 </template>
@@ -62,7 +74,14 @@ export default {
       nomcomplet: '',
       username: '',
       password: '',
+      password2: '',
       link: 'http://localhost:8080/#/'
+    }
+  },
+  methods: {
+    isValid () {
+      const exp = new RegExp('[0-9]{8}[A-Z]')
+      return exp.test(this.dni)
     }
   }
 }

@@ -3,6 +3,13 @@
     class="window-height window-width row justify-center items-center"
     style="background: linear-gradient(#8274C5, #5A4A9F);"
   >
+    <div class="column q-pa-lg" @submit.prevent="onSubmit">
+      <div>
+        <div class="text-h2" style="opacity:.4">
+          Clase 2DAM DI-AD
+        </div>
+      </div>
+    </div>
     <div class="column q-pa-lg">
       <div class="row">
         <q-card square class="shadow-24" style="width:300px;height:495px;">
@@ -46,6 +53,17 @@ export default {
       username: '',
       password: '',
       link: 'http://localhost:8080/#/register'
+    }
+  },
+  methods: {
+    onSubmit () {
+      const usuario = {
+        username: this.username,
+        password: this.password
+      }
+      this.$emit('login', usuario)
+      this.username = ''
+      this.password = ''
     }
   }
 }
