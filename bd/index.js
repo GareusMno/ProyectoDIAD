@@ -140,3 +140,89 @@ app.post('/login',(req,res)=>{
         }
     })
 });
+
+app.get('/notes',(req,res)=>{
+    let conn = new db.Database().getConnection();
+    let sql = "select * from notes where id_alumne=?"
+    conn.query(sql,[4],(err,results,fields)=>{
+        if (err){
+            res.status(400).send({
+                ok: false,
+                error:"Error buscando las notas",
+                erro:err
+            })
+        }else{
+            //let assig = results[id_assig]
+            //assig.forEach(as => {
+            //    let sql = "select cod_assig from assignatura where id_assig=?"
+            //});
+            console.log(results)
+            res.status(200).send({
+                ok:true,
+                res:"id_assig:"+results[0].id_assig+" nota:"+results[0].nota,
+                links:{
+                    get:"GET http://192.168.1.20:8082/assignatura/"+results[0].id_assig
+                }
+            })
+            
+        }
+    })
+})
+app.get('/notes/:id_Assig',(req,res)=>{
+    let conn = new db.Database().getConnection();
+    let sql = "select * from notes where id_assig=?"
+    conn.query(sql,[req.params.id_Assig],(err,results,fields)=>{
+        if (err){
+            res.status(400).send({
+                ok:false,
+                error:"Error buscando la nota",
+                erro:err
+            })
+        }else{
+            res.status(200).send({
+                ok:true,
+                res:results
+            })
+        }
+    })
+})
+app.get('/assignatura/:id_Assig',(req,res)=>{
+    let conn = new db.Database().getConnection();
+    let sql = "select * from assignatura where id_assig=?"
+    conn.query(sql,[req.params.id_Assig],(err,results,fields)=>{
+        if (err){
+            res.status(400).send({
+                ok:false,
+                error:"Error buscando la asignatura",
+                erro:err
+            })
+        }else{
+            res.status(200).send({
+                ok:true,
+                res:results
+            })
+        }
+    })
+})
+app.get('/moduls',(req,res)=>{
+    let conn = new db.Database().getConnection();
+    let sql = "select * from notes where id_profe=?"
+    conn.query(sql,[3],(err,results,fields)=>{
+        if(err){
+            res.status(400).send({
+                ok:false,
+                error:"Error buscando el modulo",
+                erro:err
+            })
+        }else{
+            var assignaturas = []
+            results.forEach(result => {
+                assignaturas.push(result.id_assig)
+            });
+            res.status(200).send({
+                ok:true,
+                res:assignaturas
+            })
+        }
+    })
+})
