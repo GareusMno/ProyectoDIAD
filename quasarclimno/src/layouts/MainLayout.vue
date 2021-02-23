@@ -47,19 +47,18 @@
 
 <script>
 import EssentialLink from 'components/EssentialLink.vue'
-import moment from 'moment'
 const linksData = [
   {
     title: 'Login',
     caption: 'Login or register with us',
     icon: 'school',
-    link: 'http://localhost:8081/#/'
+    link: 'http://localhost:8080/#/'
   },
   {
     title: 'About',
     caption: 'Know about us',
     icon: 'favorite',
-    link: 'http://localhost:8081/#/'
+    link: 'http://localhost:8080/#/about'
   }
 ]
 
@@ -68,13 +67,15 @@ export default {
   components: { EssentialLink },
   data () {
     return {
-      leftDrawerOpen: false,
+      leftDrawerOpen: true,
       essentialLinks: linksData
     }
   },
   computed: {
     fecha () {
-      return moment(String(Date())).format('dddd-DD-MM-YYYY')
+      const today = new Date()
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+      return today.toLocaleDateString('ca-ES', options)
     }
   }
 }
