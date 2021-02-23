@@ -143,7 +143,7 @@ app.post('/login',(req,res)=>{
 
 app.get('/notes',(req,res)=>{
     let conn = new db.Database().getConnection();
-    let sql = "select * from notes where id_alumne=?"
+    let sql = "select assignatura.id_assig,assignatura.cod_assig,notes.nota from notes,assignatura where notes.id_assig=? and notes.id_assig=assignatura.id_assig"
     conn.query(sql,[4],(err,results,fields)=>{
         if (err){
             res.status(400).send({
@@ -159,7 +159,7 @@ app.get('/notes',(req,res)=>{
             console.log(results)
             res.status(200).send({
                 ok:true,
-                res:"id_assig:"+results[0].id_assig+" nota:"+results[0].nota,
+                res:results,
                 links:{
                     get:"GET http://192.168.1.20:8082/assignatura/"+results[0].id_assig
                 }
@@ -206,7 +206,7 @@ app.get('/assignatura/:id_Assig',(req,res)=>{
 })
 app.get('/moduls',(req,res)=>{
     let conn = new db.Database().getConnection();
-    let sql = "select * from notes where id_profe=?"
+    let sql = "select assignatura.id_assig,assignatura.cod_assig,assignatura.nom_assig,assignatura.modul,assignatura.curs,assignatura.hores from notes,assignatura where notes.id_profe=? and notes.id_assig=assignatura.id_assig"
     conn.query(sql,[3],(err,results,fields)=>{
         if(err){
             res.status(400).send({
@@ -215,13 +215,51 @@ app.get('/moduls',(req,res)=>{
                 erro:err
             })
         }else{
-            var assignaturas = []
+            let assignaturas = []
             results.forEach(result => {
-                assignaturas.push(result.id_assig)
+                assignaturas.push(result)
             });
             res.status(200).send({
                 ok:true,
                 res:assignaturas
+            })
+            console.log(assignaturas)
+        }
+    })
+})
+
+app.get('/moduls/:id_assig',(req,res)=>{
+    let conn = new db.Database().getConnection();
+    let sql = "select notes.id_alumne,users.full_name,notes.id_assig,assignatura.cod_assig,notes.nota from assignatura,notes,users where assignatura.id_assig=? and notes.id_assig=assignatura.id_assig and notes.id_alumne=users.id"
+    conn.query(sql,[req.params.id_assig],(err,results,fields)=>{
+        if(err){
+            res.status(400).send({
+                ok:false,
+                error:"Error buscando nota de una asignatura concreta",
+                erro:err
+            })
+        }else{
+            res.status(200).send({
+                ok:true,
+                res:results
+            })
+        }
+    })
+})
+
+app.put('/moduls/:id_modul/:id_alumne',(req,res)=>{
+    let conn = new db.Database().getConnection();
+    let sql = "update notes set nota=? where id_assig=? and id_alumne=?"
+    conn.query(sql,[req.body.nota,req.params.id_modul,req.params.id_alumne],(err,results,fields)=>{
+        if(err){
+            res.status(400).send({
+                ok:false,
+                error:"Error cambiando la nota",
+                erro:err
+            })
+        }else{
+            res.status(200).send({
+                ok:true
             })
         }
     })
