@@ -46,9 +46,9 @@ class login{
             let fullname = req.body.full_name;
             let avatar = req.body.avatar;
             let conn=mydb.getConnection();
-            let sql="INSERT INTO users(dni,username,password,full_name,avatar) "+
-                    "VALUES (?,?,?,?,?)"
-            conn.query(sql,[dni,username,password,fullname,avatar],(err,results,fields)=>{
+            let sql="INSERT INTO users(username,password,full_name,avatar) "+
+                    "VALUES (?,?,?,?)"
+            conn.query(sql,[username,password,fullname,avatar],(err,results,fields)=>{
                 if (err){
                     res.status(400).send({
                         ok: false,
