@@ -113,7 +113,7 @@ app.post('/register',(req,res)=>{
                             })
                         }else{
                             const accessToken = jwt.sign({id:id ,username: username, role:
-                                "alumne" }, accessTokenSecret);
+                                "alumne" }, accessTokenSecret,{ expiresIn:7200});
                             res.status(200).send({
                                 ok:true,
                                 resultado:"user_id:"+id+", username:"+username+", role: alumne "+"Token:"+accessToken
@@ -129,6 +129,8 @@ app.post('/register',(req,res)=>{
                                 error:err
                             })
                         }else{
+                            const accessToken = jwt.sign({id:id ,username: username, role:
+                                "professor" }, accessTokenSecret,{ expiresIn:7200});
                             res.status(200).send({
                                 ok:true,
                                 resultado:"user_id:"+id+", username:"+username+", role: profe"+"Token:"+accessToken
@@ -158,7 +160,7 @@ app.post('/login',(req,res)=>{
         else{
             let id=results["id"]
             const accessToken = jwt.sign({id:id ,username: username, role:
-                "professor" }, accessTokenSecret);
+                "professor" }, accessTokenSecret,{ expiresIn:7200});
             res.status(200).send({
                 ok: true,
                 data:"Token: "+accessToken
