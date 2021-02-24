@@ -30,24 +30,51 @@ let usuarioSchema = new mongoose.Schema({
     }
 });
 let Usuario = mongoose.model('usuario', usuarioSchema);
-const authenticateJWT = (req, res, next) => {
+const authenticateJWTAlumne = (req, res, next) => {
     // arrepleguem el JWT d'autorització
     const authHeader = req.headers.authorization;
     if (authHeader) { // si hi ha toquen
-    // recuperem el jwt
-    const token = authHeader.split(' ')[1];
-    jwt.verify(token, accessTokenSecret, (err, user) => {
-    if (err) {
-    return res.sendStatus(403);
-    }
-    // afegim a la petició les dades que venien en el jwt user
-    req.user = user;
-    // s'executa la segïuent funció, un cop s'ha fet el middleware
-    next();
-    });
+        // recuperem el jwt
+        const token = authHeader.split(' ')[1];
+        jwt.verify(token, accessTokenSecret, (err, user) => {
+            if (err) {
+                return res.sendStatus(403);
+            }
+            // afegim a la petició les dades que venien en el jwt user
+            if(user.role!="alumne"){
+                return res.status(420).send({
+                    error:"No eres alumno"
+                })
+            }
+            // s'executa la segïuent funció, un cop s'ha fet el middleware
+            next();
+        });
     } else { // no està. contestem directament al client amb un error
-    401 (unauthorized)
-    res.sendStatus(401);
+        401 (unauthorized)
+        res.sendStatus(401);
+    }
+};
+const authenticateJWTProfe = (req, res, next) => {
+    // arrepleguem el JWT d'autorització
+    const authHeader = req.headers.authorization;
+    if (authHeader) { // si hi ha toquen
+        // recuperem el jwt
+        const token = authHeader.split(' ')[1];
+        jwt.verify(token, accessTokenSecret, (err, user) => {
+            if (err) {
+                return res.sendStatus(403);
+            }
+            if(user.role!="professor"){
+                return res.status(421).send({
+                    error:"No eres professor"
+                })
+            }
+            // s'executa la segïuent funció, un cop s'ha fet el middleware
+            next();
+        });
+    } else { // no està. contestem directament al client amb un error
+        401 (unauthorized)
+        res.sendStatus(401);
     }
 };
 let app = express();
@@ -121,10 +148,10 @@ app.post('/login',(req,res)=>{
     let password = req.body.password;
     let sql="select * from users where username=? and password=?"
     conn.query(sql,[username,password],(err,results,fields)=>{
-        if (err){
+        if (results.length==0){
             res.status(400).send({
                 ok: false,
-                error:"Error entrando como usuario",
+                error:"Error entrando",
                 error:err
             })
         }
@@ -141,7 +168,7 @@ app.post('/login',(req,res)=>{
     })
 });
 
-app.get('/notes',(req,res)=>{
+app.get('/notes',authenticateJWTAlumne,(req,res)=>{
     let conn = new db.Database().getConnection();
     let sql = "select assignatura.id_assig,assignatura.cod_assig,notes.nota from notes,assignatura where notes.id_assig=? and notes.id_assig=assignatura.id_assig"
     conn.query(sql,[4],(err,results,fields)=>{
@@ -168,7 +195,7 @@ app.get('/notes',(req,res)=>{
         }
     })
 })
-app.get('/notes/:id_Assig',(req,res)=>{
+app.get('/notes/:id_Assig',authenticateJWTAlumne,(req,res)=>{
     let conn = new db.Database().getConnection();
     let sql = "select * from notes where id_assig=?"
     conn.query(sql,[req.params.id_Assig],(err,results,fields)=>{
@@ -204,7 +231,7 @@ app.get('/assignatura/:id_Assig',(req,res)=>{
         }
     })
 })
-app.get('/moduls',(req,res)=>{
+app.get('/moduls',authenticateJWTProfe,(req,res)=>{
     let conn = new db.Database().getConnection();
     let sql = "select assignatura.id_assig,assignatura.cod_assig,assignatura.nom_assig,assignatura.modul,assignatura.curs,assignatura.hores from notes,assignatura where notes.id_profe=? and notes.id_assig=assignatura.id_assig"
     conn.query(sql,[3],(err,results,fields)=>{
@@ -228,7 +255,7 @@ app.get('/moduls',(req,res)=>{
     })
 })
 
-app.get('/moduls/:id_assig',(req,res)=>{
+app.get('/moduls/:id_assig',authenticateJWTProfe,(req,res)=>{
     let conn = new db.Database().getConnection();
     let sql = "select notes.id_alumne,users.full_name,notes.id_assig,assignatura.cod_assig,notes.nota from assignatura,notes,users where assignatura.id_assig=? and notes.id_assig=assignatura.id_assig and notes.id_alumne=users.id"
     conn.query(sql,[req.params.id_assig],(err,results,fields)=>{
@@ -247,7 +274,7 @@ app.get('/moduls/:id_assig',(req,res)=>{
     })
 })
 
-app.put('/moduls/:id_modul/:id_alumne',(req,res)=>{
+app.put('/moduls/:id_modul/:id_alumne',authenticateJWTProfe,(req,res)=>{
     let conn = new db.Database().getConnection();
     let sql = "update notes set nota=? where id_assig=? and id_alumne=?"
     conn.query(sql,[req.body.nota,req.params.id_modul,req.params.id_alumne],(err,results,fields)=>{
