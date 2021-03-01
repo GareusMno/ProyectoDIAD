@@ -7,7 +7,7 @@ class Database{
         // Retorna la conexión
         return mysql.createConnection({
             insecureAuth : false,
-            host    : '192.168.1.11',
+            host    : '192.168.1.36',
             port    : '3308',
             user    : 'root',
             password: 'root',

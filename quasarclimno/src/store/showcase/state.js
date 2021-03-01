@@ -1,3 +1,5 @@
-export default {
-  count: 0
+export default function () {
+  return {
+    token: ''
+  }
 }

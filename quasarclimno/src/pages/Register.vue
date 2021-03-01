@@ -54,7 +54,7 @@
             </q-form>
           </q-card-section>
           <q-card-actions class="q-px-lg">
-            <q-btn unelevated size="lg" color="purple-4" class="full-width text-white" label="Get Started" />
+            <q-btn unelevated size="lg" color="purple-4" class="full-width text-white" label="Register" @click="register" />
           </q-card-actions>
           <q-card-section class="text-center q-pa-sm">
             <p class="text-grey-6">Return to <a :href="link">login</a></p>
@@ -82,6 +82,20 @@ export default {
     isValid () {
       const exp = new RegExp('[0-9]{8}[A-Z]')
       return exp.test(this.dni)
+    },
+    register () {
+      const usuario = {
+        username: this.username,
+        password: this.password,
+        dni: this.dni,
+        full_name: this.nomcomplet
+      }
+      this.$store.dispatch('showcase/register', usuario).then(response => {
+        this.username = 'registrado'
+      }, (er) => {
+        console.log('H')
+      })
+      console.log('asdasdasd')
     }
   }
 }

@@ -34,7 +34,7 @@
             </q-form>
           </q-card-section>
           <q-card-actions class="q-px-lg">
-            <q-btn unelevated size="lg" color="purple-4" class="full-width text-white" label="Sign In" @click="prueba"/>
+            <q-btn unelevated size="lg" color="purple-4" class="full-width text-white" label="Sign In" @click="login"/>
           </q-card-actions>
           <q-card-section class="text-center q-pa-sm">
             <p class="text-grey-6"><a :href="link">Register</a></p>
@@ -84,8 +84,8 @@ export default {
         username: this.username,
         password: this.password
       }
-      this.$store.dispatch('login', usuario).then(response => {
-        console.log('H')
+      this.$store.dispatch('showcase/login', usuario).then(response => {
+        this.username = 'loged'
       }, (er) => {
         console.log('H')
       })
