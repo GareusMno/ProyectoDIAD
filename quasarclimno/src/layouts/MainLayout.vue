@@ -8,7 +8,7 @@
           round
           icon="menu"
           aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
+          @click="drawerState = !drawerState"
         />
 
         <q-toolbar-title>
@@ -72,6 +72,14 @@ export default {
     }
   },
   computed: {
+    drawerState: {
+      get () {
+        return this.$store.state.showcase.drawerState
+      },
+      set (val) {
+        this.$store.commit('showcase/updateDrawerState', val)
+      }
+    },
     fecha () {
       const today = new Date()
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }

@@ -13,7 +13,7 @@ module.exports = function (/* ctx */) {
     supportTS: false,
 
     // https://quasar.dev/quasar-cli/prefetch-feature
-    // preFetch: true,
+    preFetch: true,
 
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
@@ -86,7 +86,7 @@ module.exports = function (/* ctx */) {
       iconSet: 'material-icons', // Quasar icon set
       lang: 'ca', // Quasar language pack
       config: {},
-
+      notify: {},
       // Possible values for "importStrategy":
       // * 'auto' - (DEFAULT) Auto-import needed Quasar components & directives
       // * 'all'  - Manually specify what to import

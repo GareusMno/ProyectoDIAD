@@ -34,7 +34,7 @@
             </q-form>
           </q-card-section>
           <q-card-actions class="q-px-lg">
-            <q-btn unelevated size="lg" color="purple-4" class="full-width text-white" label="Sign In" />
+            <q-btn unelevated size="lg" color="purple-4" class="full-width text-white" label="Sign In" @click="prueba"/>
           </q-card-actions>
           <q-card-section class="text-center q-pa-sm">
             <p class="text-grey-6"><a :href="link">Register</a></p>
@@ -46,13 +46,15 @@
 </template>
 
 <script>
+import { api } from 'boot/axios'
 export default {
   name: 'Login',
   data () {
     return {
       username: '',
       password: '',
-      link: 'http://localhost:8080/#/register'
+      link: 'http://localhost:8080/#/register',
+      token: ''
     }
   },
   methods: {
@@ -64,6 +66,30 @@ export default {
       this.$emit('login', usuario)
       this.username = ''
       this.password = ''
+    },
+    prueba () {
+      // return api.post('/register', this.username,this.password).then(response => {
+      //   api.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.token
+      //   commit('login', {token: response.data.token, user: response.data.user})
+      // })
+      api.get('/notes').then((response) => {
+        this.data = response.data
+        this.username = this.data
+      }).catch((err) => {
+        this.username = err
+      })
+    },
+    login () {
+      const usuario = {
+        username: this.username,
+        password: this.password
+      }
+      this.$store.dispatch('login', usuario).then(response => {
+        console.log('H')
+      }, (er) => {
+        console.log('H')
+      })
+      console.log('asdasdasd')
     }
   }
 }
