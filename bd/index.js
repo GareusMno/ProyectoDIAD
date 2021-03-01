@@ -3,6 +3,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cors = require('cors')
 accessTokenSecret="ASDQE1317489JDASJD13UQW"
 let usuarioSchema = new mongoose.Schema({
     dni: {
@@ -50,8 +51,8 @@ const authenticateJWTAlumne = (req, res, next) => {
             next();
         });
     } else { // no està. contestem directament al client amb un error
-        401 (unauthorized)
-        res.sendStatus(401);
+        res.sendStatus(402);
+        console.log("Error de permisos")
     }
 };
 const authenticateJWTProfe = (req, res, next) => {
@@ -73,12 +74,20 @@ const authenticateJWTProfe = (req, res, next) => {
             next();
         });
     } else { // no està. contestem directament al client amb un error
-        401 (unauthorized)
         res.sendStatus(401);
     }
 };
 let app = express();
 app.use(bodyParser.json());
+app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept'
+    );
+    next();
+});
+app.use(cors());
 app.listen(8082);
 app.use(bodyParser.json());
 app.post('/register',(req,res)=>{
@@ -268,9 +277,21 @@ app.get('/moduls/:id_assig',authenticateJWTProfe,(req,res)=>{
                 erro:err
             })
         }else{
+            let num = 0
+            let ass = []
+            results.forEach(result => {
+                result.links = {
+                    "assignatura":"GET http://192.168.1.8:8082/assignatura/"+results[num].id_assig,
+                    "alumne":"GET http://192.168.1.8:8082/alumne/"+results[num].id_alumne,
+                    "modul":"GET http://192.168.1.8:8082/moduls/"+results[num].id_assig
+                }
+                ass.push(result)
+                num++
+            });
+            console.log(ass)
             res.status(200).send({
                 ok:true,
-                res:results
+                res:ass
             })
         }
     })
@@ -292,4 +313,41 @@ app.put('/moduls/:id_modul/:id_alumne',authenticateJWTProfe,(req,res)=>{
             })
         }
     })
+})
+
+app.put('/missatge/:idusuario/:mensaje',(req,res)=>{
+    let conn = new db.Database().getConnection();
+    let sql="INSERT INTO missatgeria(id_alumne,id_profe,moment,missatge,emisor) VALUES (?,?,now(),?,?)"
+    let usuario = "alumne"
+    let idusuario = 2
+    if (usuario=="alumne"){
+        conn.query(sql,[idusuario,req.params.idusuario,req.params.mensaje,idusuario],(err,results,fields)=>{
+            if(err){
+                res.status(400).send({
+                    ok:false,
+                    error:"Error enviando mensajes",
+                    erro:err
+                })
+            }else{
+                res.status(200).send({
+                    ok:true
+                })
+            }
+        })
+    }else{
+        conn.query(sql,[req.params.idusuario,req.params.id_modul,req.params.id_alumne],(err,results,fields)=>{
+            if(err){
+                res.status(400).send({
+                    ok:false,
+                    error:"Error cambiando la nota",
+                    erro:err
+                })
+            }else{
+                res.status(200).send({
+                    ok:true
+                })
+            }
+        })
+    }
+    
 })
