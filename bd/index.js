@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors')
 accessTokenSecret="ASDQE1317489JDASJD13UQW"
+refreshTokenSecret="PEPEGARCIA"
 let usuarioSchema = new mongoose.Schema({
     dni: {
         type: String,
@@ -47,6 +48,7 @@ const authenticateJWTAlumne = (req, res, next) => {
                     error:"No eres alumno"
                 })
             }
+            req.user = user;
             // s'executa la segïuent funció, un cop s'ha fet el middleware
             next();
         });
@@ -70,6 +72,7 @@ const authenticateJWTProfe = (req, res, next) => {
                     error:"No eres professor"
                 })
             }
+            req.user = user;
             // s'executa la segïuent funció, un cop s'ha fet el middleware
             next();
         });
@@ -167,23 +170,50 @@ app.post('/login',(req,res)=>{
             })
         }
         else{
-            let id=results["id"]
-            const accessToken = jwt.sign({id:id ,username: username, role:
-                "professor" }, accessTokenSecret,{ expiresIn:7200});
-            res.status(200).send({
-                ok: true,
-                data:"Token: "+accessToken
+            let sql = "select id_alumne from alumne where id_alumne=?"
+            const id = results[0].id
+            conn.query(sql,[id],(err,results,fields)=>{
+                if(results.length==0){
+                    console.log(results)
+                    const accessToken = jwt.sign({id:id ,username: username, role:
+                        "professor" }, accessTokenSecret,{ expiresIn:7200});
+
+                    const refreshToken = jwt.sign(
+                        { id:id ,username: username, role: "professor" },
+                        refreshTokenSecret);
+                    res.status(200).send({
+                        ok: true,
+                        Bienvenido: "professor",
+                        data:"Token: "+accessToken,
+                        refresh: refreshToken
+                    })
+                    console.log("Professor dentro")
+                }else{
+                    console.log(results)
+                    const accessToken = jwt.sign({id:id ,username: username, role:
+                        "alumne" }, accessTokenSecret,{ expiresIn:7200});
+                    const refreshToken = jwt.sign(
+                        { id:id, username: username, role: "alumne" },
+                        refreshTokenSecret);
+                    res.status(200).send({
+                        ok: true,
+                        Bienvenido: "alumno",
+                        data:"Token: "+accessToken,
+                        refresh: refreshToken
+                    })
+                    console.log("Alumne dentro")
+                }
             })
-            console.log("Usuario dentro")
         }
     })
 });
 
 app.get('/notes',authenticateJWTAlumne,(req,res)=>{
     let conn = new db.Database().getConnection();
+    const id = req.user.id;
     let sql = "select assignatura.id_assig,assignatura.cod_assig,notes.nota from notes,assignatura where notes.id_assig=? and notes.id_assig=assignatura.id_assig"
-    conn.query(sql,[4],(err,results,fields)=>{
-        if (err){
+    conn.query(sql,[id],(err,results,fields)=>{
+        if (results.length==0){
             res.status(400).send({
                 ok: false,
                 error:"Error buscando las notas",
@@ -199,7 +229,7 @@ app.get('/notes',authenticateJWTAlumne,(req,res)=>{
                 ok:true,
                 res:results,
                 links:{
-                    get:"GET http://192.168.1.20:8082/assignatura/"+results[0].id_assig
+                    get:"GET http://192.168.1.11:8082/assignatura/"+results[0].id_assig
                 }
             })
             
@@ -244,8 +274,10 @@ app.get('/assignatura/:id_Assig',(req,res)=>{
 })
 app.get('/moduls',authenticateJWTProfe,(req,res)=>{
     let conn = new db.Database().getConnection();
+    console.log(req.user)
+    const id = req.user.id
     let sql = "select assignatura.id_assig,assignatura.cod_assig,assignatura.nom_assig,assignatura.modul,assignatura.curs,assignatura.hores from notes,assignatura where notes.id_profe=? and notes.id_assig=assignatura.id_assig"
-    conn.query(sql,[3],(err,results,fields)=>{
+    conn.query(sql,[id],(err,results,fields)=>{
         if(err){
             res.status(400).send({
                 ok:false,
